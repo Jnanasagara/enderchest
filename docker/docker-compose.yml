@@ -1,0 +1,30 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: enderchest_postgres
+    env_file:
+      - .env
+    volumes:
+      - enderchest_postgres_data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:latest
+    container_name: enderchest_minio
+    env_file:
+      - .env
+    command: server /data --console-address ":9001"
+    volumes:
+      - enderchest_minio_data:/data
+
+ # app: 
+ #   build: ..
+ #   container_name: enderchest_app
+ #   env_file:
+ #     - .env
+ #   depends_on:
+ #     - postgres
+ #     - minio
+
+volumes:
+  enderchest_postgres_data:
+  enderchest_minio_data:
