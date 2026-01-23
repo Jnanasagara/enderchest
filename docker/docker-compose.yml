@@ -17,14 +17,18 @@ services:
     volumes:
       - enderchest_minio_data:/data
 
- # app: 
- #   build: ..
- #   container_name: enderchest_app
- #   env_file:
- #     - .env
- #   depends_on:
- #     - postgres
- #     - minio
+  app: 
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: enderchest_app
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+    depends_on:
+      - postgres
+      - minio
 
 volumes:
   enderchest_postgres_data:
