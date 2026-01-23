@@ -6,6 +6,7 @@ services:
       - .env
     volumes:
       - enderchest_postgres_data:/var/lib/postgresql/data
+      - ../migrations:/migrations:ro
 
   minio:
     image: minio/minio:latest
