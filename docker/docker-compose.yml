@@ -26,6 +26,11 @@ services:
       - "3000:3000"
     environment:
       NODE_ENV: production
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: enderchest
+      POSTGRES_USER: enderchest_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} 
     depends_on:
       - postgres
       - minio
