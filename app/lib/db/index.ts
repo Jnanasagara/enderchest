@@ -1,30 +1,18 @@
+import { QueryResultRow } from "pg";
 import { pool } from "./pool";
 
-/**
- * Typed DB query wrapper.
- * This is the ONLY allowed way to talk to Postgres.
- */
-export async function query<T = unknown>(
+export async function query<T extends QueryResultRow = QueryResultRow>(
   text: string,
   params?: readonly unknown[]
 ): Promise<T[]> {
   try {
-    let result;
+    const result = params
+      ? await pool.query<T>(text, params as any[])
+      : await pool.query<T>(text);
 
-    if (params === undefined) {
-      result = await pool.query(text);
-    } else {
-      // pg overloads REQUIRE a mutable array type
-      result = await pool.query(text, params as any[]);
-    }
-
-    return result.rows as T[];
+    return result.rows;
   } catch (error) {
-    console.error("DB query failed", {
-      text,
-      params,
-      error,
-    });
+    console.error("DB query failed", { text, params, error });
     throw error;
   }
 }

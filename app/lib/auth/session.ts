@@ -22,7 +22,7 @@ export async function createSession(userId: string): Promise<string> {
 
 
 export async function getSessionUser(sessionId: string) {
-  const result = await query(
+  const sessions = await query<{ user_id: string }>(
     `
     SELECT user_id
     FROM sessions
@@ -30,13 +30,13 @@ export async function getSessionUser(sessionId: string) {
       AND expires_at > now()
     `,
     [sessionId]
-  ) as any;
+  );
 
-  if (result.rowCount === 0) {
+  if (sessions.length === 0) {
     return null;
   }
 
-  return result.rows[0].user_id as string;
+  return sessions[0].user_id;
 }
 
 export async function deleteSession(sessionId: string): Promise<void> {
