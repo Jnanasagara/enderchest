@@ -1,0 +1,40 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: enderchest_postgres
+    env_file:
+      - .env
+    volumes:
+      - enderchest_postgres_data:/var/lib/postgresql/data
+      - ../migrations:/migrations:ro
+
+  minio:
+    image: minio/minio:latest
+    container_name: enderchest_minio
+    env_file:
+      - .env
+    command: server /data --console-address ":9001"
+    volumes:
+      - enderchest_minio_data:/data
+
+  app: 
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    container_name: enderchest_app
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: enderchest
+      POSTGRES_USER: enderchest_user
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} 
+    depends_on:
+      - postgres
+      - minio
+
+volumes:
+  enderchest_postgres_data:
+  enderchest_minio_data:
