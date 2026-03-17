@@ -59,6 +59,16 @@ export async function POST(req: Request) {
 
   const newUserId = newUsers[0].id;
 
+  const rootFolderId = crypto.randomUUID();
+
+  await query(
+    `
+    INSERT INTO folders (id, owner_id, parent_id, name, created_at, updated_at)
+    VALUES ($1, $2, NULL, 'root', NOW(), NOW())
+    `,
+    [rootFolderId, newUserId]
+  );
+
   await query(
     `
       UPDATE invites
