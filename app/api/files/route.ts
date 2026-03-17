@@ -27,7 +27,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
-    // ✅ Verify folder belongs to user
+    // Verify folder belongs to user
     const folderCheck = await query<{ id: string }>(
       `
       SELECT id
