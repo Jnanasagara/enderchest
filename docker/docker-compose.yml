@@ -36,6 +36,8 @@ services:
       POSTGRES_DB: enderchest
       POSTGRES_USER: enderchest_user
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} 
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     depends_on:
       - postgres
       - minio

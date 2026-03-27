@@ -1,5 +1,6 @@
 import crypto from "crypto";
 import { query } from "@/app/lib/db";
+import { cookies } from "next/headers";
 
 const SESSION_TTL_DAYS = 7;
 
@@ -21,7 +22,15 @@ export async function createSession(userId: string): Promise<string> {
 }
 
 
-export async function getSessionUser(sessionId: string) {
+export async function getSessionUser(sessionId?: string) {
+  // If session not provided → read from cookies
+  if (!sessionId) {
+    const cookieStore = await cookies();
+    sessionId = cookieStore.get("session")?.value;
+  }
+
+  if (!sessionId) return null;
+
   const sessions = await query<{ user_id: string }>(
     `
     SELECT user_id
@@ -32,9 +41,7 @@ export async function getSessionUser(sessionId: string) {
     [sessionId]
   );
 
-  if (sessions.length === 0) {
-    return null;
-  }
+  if (sessions.length === 0) return null;
 
   return sessions[0].user_id;
 }
