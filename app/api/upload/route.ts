@@ -38,10 +38,10 @@ export async function POST(req: NextRequest) {
     // Save metadata in DB
     await pool.query(
       `
-      INSERT INTO files (id, folder_id, owner_id, object_key, size_bytes, mime_type)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO files (id, folder_id, owner_id, name, object_key, size_bytes, mime_type)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       `,
-      [fileId, folderId, userId, objectKey, buffer.length, file.type]
+      [fileId, folderId, userId, file.name, objectKey, buffer.length, file.type]
     );
 
     return Response.json({

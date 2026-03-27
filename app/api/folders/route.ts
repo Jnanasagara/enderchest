@@ -63,12 +63,11 @@ export async function GET(req: Request) {
     // Step 3: Fetch files (empty for now, but structure ready)
     const files = await query<{
       id: string;
-      object_key: string;
+      name: string;
       size_bytes: number;
-      mime_type: string;
     }>(
       `
-      SELECT id, object_key, size_bytes, mime_type
+      SELECT id, name, size_bytes
       FROM files
       WHERE folder_id = $1
         AND owner_id = $2
@@ -80,7 +79,12 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       folders,
-      files,
+      files: files.map(file => ({
+        id: file.id,
+        name: file.name,
+        size: file.size_bytes,
+        downloadUrl: `/api/files/${file.id}/download`
+      }))
     });
 
   } catch (error) {
