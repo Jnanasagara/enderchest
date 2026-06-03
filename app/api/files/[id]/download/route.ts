@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { minioClient } from "@/app/lib/minio";
 import { getSessionUser } from "@/app/lib/auth/session";
 import { pool } from "@/app/lib/db/pool";
+import { logError } from "@/app/lib/http/logging";
 
 export async function GET(
   req: NextRequest,
@@ -21,7 +22,9 @@ export async function GET(
       `
       SELECT object_key, mime_type
       FROM files
-      WHERE id = $1 AND owner_id = $2
+      WHERE id = $1
+        AND owner_id = $2
+        AND deleted_at IS NULL
       `,
       [fileId, userId]
     );
@@ -55,7 +58,8 @@ export async function GET(
       },
     });
 
-  } catch (err: any) {
-    return Response.json({ error: err.message });
+  } catch (error: unknown) {
+    logError("files.download.failed", { error: String(error) });
+    return Response.json({ error: "Internal server error" }, { status: 500 });
   }
 }

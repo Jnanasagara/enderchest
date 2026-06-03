@@ -2,27 +2,95 @@ services:
   postgres:
     image: postgres:16
     container_name: enderchest_postgres
-    env_file:
-      - .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-enderchest}
+      POSTGRES_USER: ${POSTGRES_USER:-enderchest_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - enderchest_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  migrate:
+    image: postgres:16
+    container_name: enderchest_migrate
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-enderchest}
+      POSTGRES_USER: ${POSTGRES_USER:-enderchest_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
       - ../migrations:/migrations:ro
+      - ./scripts/migrate.sh:/scripts/migrate.sh:ro
+    command: ["sh", "/scripts/migrate.sh"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
 
   minio:
-    image: minio/minio:latest
+    image: minio/minio:RELEASE.2025-04-22T22-12-26Z
     container_name: enderchest_minio
-    env_file:
-      - .env
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
     command: server /data --console-address ":9001"
     ports:
       - "9000:9000"
       - "9001:9001"
     volumes:
       - enderchest_minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
 
-  app: 
+  minio-init:
+    image: minio/mc:RELEASE.2025-04-16T18-13-26Z
+    container_name: enderchest_minio_init
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    volumes:
+      - ./scripts/init-minio.sh:/scripts/init-minio.sh:ro
+    entrypoint: ["sh", "/scripts/init-minio.sh"]
+    depends_on:
+      minio:
+        condition: service_healthy
+    restart: "no"
+
+  bootstrap-admin:
+    image: enderchest-app
+    pull_policy: never
+    container_name: enderchest_bootstrap_admin
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-enderchest}
+      POSTGRES_USER: ${POSTGRES_USER:-enderchest_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      BOOTSTRAP_ADMIN_EMAIL: ${BOOTSTRAP_ADMIN_EMAIL:-}
+      BOOTSTRAP_ADMIN_PASSWORD: ${BOOTSTRAP_ADMIN_PASSWORD:-}
+      DEFAULT_QUOTA_BYTES: ${DEFAULT_QUOTA_BYTES:-10737418240}
+    volumes:
+      - ./scripts/bootstrap-admin.js:/app/scripts/bootstrap-admin.js:ro
+    command: ["node", "/app/scripts/bootstrap-admin.js"]
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: "no"
+
+  app:
+    image: enderchest-app
     build:
       context: ..
       dockerfile: Dockerfile
@@ -33,14 +101,32 @@ services:
       NODE_ENV: production
       POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
-      POSTGRES_DB: enderchest
-      POSTGRES_USER: enderchest_user
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD} 
+      POSTGRES_DB: ${POSTGRES_DB:-enderchest}
+      POSTGRES_USER: ${POSTGRES_USER:-enderchest_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       MINIO_ROOT_USER: ${MINIO_ROOT_USER}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+      DEFAULT_QUOTA_BYTES: ${DEFAULT_QUOTA_BYTES:-10737418240}
+      SESSION_COOKIE_SECURE: "false"
     depends_on:
-      - postgres
-      - minio
+      bootstrap-admin:
+        condition: service_completed_successfully
+      migrate:
+        condition: service_completed_successfully
+      minio-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://localhost:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
 
 volumes:
   enderchest_postgres_data:

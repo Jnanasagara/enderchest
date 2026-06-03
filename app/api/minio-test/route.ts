@@ -1,4 +1,5 @@
 import { minioClient } from "@/app/lib/minio";
+import { logError } from "@/app/lib/http/logging";
 
 export async function GET() {
   try {
@@ -9,9 +10,7 @@ export async function GET() {
       buckets,
     });
   } catch (err) {
-    return Response.json({
-      success: false,
-      error: String(err),
-    });
+    logError("minio.test.failed", { error: String(err) });
+    return Response.json({ success: false }, { status: 500 });
   }
 }

@@ -1,13 +1,19 @@
-import { NextRequest, NextResponse } from "next/server";
-import { minioClient } from "@/app/lib/minio";
+import { NextRequest } from "next/server";
 import { getSessionUser } from "@/app/lib/auth/session";
 import { pool } from "@/app/lib/db/pool";
+import { requireCsrf } from "@/app/lib/auth/csrf";
+import { logError } from "@/app/lib/http/logging";
 
 export async function DELETE(
-    req: NextRequest,
+    _req: NextRequest,
     { params }: { params: Promise<{ id: string }> }
 )   {
     try{
+        const csrfError = requireCsrf(_req);
+        if (csrfError) {
+            return Response.json({ error: csrfError }, { status: 403 });
+        }
+
         const userId = await getSessionUser();
 
         if(!userId){
@@ -16,12 +22,14 @@ export async function DELETE(
 
         const { id: fileId } = await params;
 
-        //Step 1: Get file from db
+        // Keep the MinIO object until trash retention permanently removes it.
         const result = await pool.query(
             `
-            SELECT object_key
-            FROM files
+            UPDATE files
+            SET deleted_at = NOW()
             WHERE id = $1 AND owner_id = $2
+              AND deleted_at IS NULL
+            RETURNING id
             `,
             [fileId, userId]
         );
@@ -30,23 +38,10 @@ export async function DELETE(
             return Response.json({ error: "File not found" }, { status: 404 });
         }
 
-        const file = result.rows[0];
-
-        //Step 2: Delete from MinIO
-        await minioClient.removeObject("enderchest", file.object_key);
-
-        //Step 3: Delete from postgres db
-        await pool.query(
-            `
-            DELETE FROM files
-            WHERE id = $1 AND owner_id = $2            
-            `,
-            [fileId, userId]
-        );
-
         return Response.json({ success: true });
     }
-    catch(err: any){
-        return Response.json({ error: err.message });
+    catch(error: unknown){
+        logError("files.delete.failed", { error: String(error) });
+        return Response.json({ error: "Internal server error" }, { status: 500 });
     }
 }

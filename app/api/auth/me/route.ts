@@ -2,18 +2,8 @@ import { NextResponse } from "next/server";
 import { query } from "@/app/lib/db";
 import { getSessionUser } from "@/app/lib/auth/session";
 
-export async function GET(req: Request) {
-  const sessionId = req.headers
-    .get("cookie")
-    ?.split("; ")
-    .find((c) => c.startsWith("session="))
-    ?.split("=")[1];
-
-  if (!sessionId) {
-    return NextResponse.json({ user: null });
-  }
-
-  const userId = await getSessionUser(sessionId);
+export async function GET(_req: Request) {
+  const userId = await getSessionUser();
 
   if (!userId) {
     return NextResponse.json({ user: null });

@@ -1,19 +1,12 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 
 import { query } from "@/app/lib/db";
 import { getSessionUser } from "@/app/lib/auth/session";
+import { logError } from "@/app/lib/http/logging";
 
 export async function GET() {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get("session")?.value;
-
-    if (!sessionId) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    const userId = await getSessionUser(sessionId);
+    const userId = await getSessionUser();
 
     if (!userId) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
@@ -41,7 +34,7 @@ export async function GET() {
     return NextResponse.json(folders[0]);
 
   } catch (error) {
-    console.error(error);
+    logError("folders.root.failed", { error: String(error) });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

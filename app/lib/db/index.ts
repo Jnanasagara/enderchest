@@ -7,7 +7,7 @@ export async function query<T extends QueryResultRow = QueryResultRow>(
 ): Promise<T[]> {
   try {
     const result = params
-      ? await pool.query<T>(text, params as any[])
+      ? await pool.query<T>(text, [...params])
       : await pool.query<T>(text);
 
     return result.rows;

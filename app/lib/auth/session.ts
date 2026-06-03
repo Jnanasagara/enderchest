@@ -2,13 +2,21 @@ import crypto from "crypto";
 import { query } from "@/app/lib/db";
 import { cookies } from "next/headers";
 
-const SESSION_TTL_DAYS = 7;
+export const SESSION_TTL_DAYS = 7;
+const PRUNE_PROBABILITY = 0.02;
+
+async function maybePruneExpiredSessions(): Promise<void> {
+  if (Math.random() > PRUNE_PROBABILITY) return;
+  await deleteExpiredSessions();
+}
 
 export async function createSession(userId: string): Promise<string> {
   const sessionId = crypto.randomUUID();
 
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + SESSION_TTL_DAYS);
+
+  await maybePruneExpiredSessions();
 
   await query(
     `
@@ -31,12 +39,16 @@ export async function getSessionUser(sessionId?: string) {
 
   if (!sessionId) return null;
 
+  await maybePruneExpiredSessions();
+
   const sessions = await query<{ user_id: string }>(
     `
-    SELECT user_id
+    SELECT sessions.user_id
     FROM sessions
-    WHERE id = $1
-      AND expires_at > now()
+    INNER JOIN users ON users.id = sessions.user_id
+    WHERE sessions.id = $1
+      AND sessions.expires_at > now()
+      AND users.status = 'active'
     `,
     [sessionId]
   );
@@ -53,6 +65,16 @@ export async function deleteSession(sessionId: string): Promise<void> {
     WHERE id = $1
     `,
     [sessionId]
+  );
+}
+
+export async function deleteUserSessions(userId: string): Promise<void> {
+  await query(
+    `
+    DELETE FROM sessions
+    WHERE user_id = $1
+    `,
+    [userId]
   );
 }
 

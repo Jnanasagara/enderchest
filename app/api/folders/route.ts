@@ -1,21 +1,17 @@
 import { NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import crypto from "crypto";
 
 import { query } from "@/app/lib/db";
+import { hasPostgresCode } from "@/app/lib/db/errors";
 import { getSessionUser } from "@/app/lib/auth/session";
+import { requireCsrf } from "@/app/lib/auth/csrf";
+import { readJsonBody } from "@/app/lib/http/request";
+import { logError } from "@/app/lib/http/logging";
 
 
 export async function GET(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get("session")?.value;
-
-    if (!sessionId) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
-    }
-
-    const userId = await getSessionUser(sessionId);
+    const userId = await getSessionUser();
 
     if (!userId) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
@@ -88,7 +84,7 @@ export async function GET(req: Request) {
     });
 
   } catch (error) {
-    console.error(error);
+    logError("folders.list.failed", { error: String(error) });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -96,21 +92,26 @@ export async function GET(req: Request) {
 
 export async function POST(req: Request) {
   try {
-    const cookieStore = await cookies();
-    const sessionId = cookieStore.get("session")?.value;
-
-    if (!sessionId) {
-      return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
+    const csrfError = requireCsrf(req);
+    if (csrfError) {
+      return NextResponse.json({ error: csrfError }, { status: 403 });
     }
 
-    const userId = await getSessionUser(sessionId);
+    const userId = await getSessionUser();
 
     if (!userId) {
       return NextResponse.json({ error: "Invalid session" }, { status: 401 });
     }
 
-    const body = await req.json();
-    const { name, parentId } = body;
+    const parsed = await readJsonBody<{ name?: string; parentId?: string }>(req, {
+      maxBytes: 8 * 1024,
+    });
+
+    if (parsed.error) {
+      return NextResponse.json({ error: parsed.error }, { status: 400 });
+    }
+
+    const { name, parentId } = parsed.value ?? {};
 
     if (!name || !parentId) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
@@ -149,7 +150,14 @@ export async function POST(req: Request) {
 
     return NextResponse.json(folders[0]);
   } catch (error) {
-    console.error(error);
+    if (hasPostgresCode(error, "23505")) {
+      return NextResponse.json(
+        { error: "A folder with that name already exists" },
+        { status: 409 }
+      );
+    }
+
+    logError("folders.create.failed", { error: String(error) });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
