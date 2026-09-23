@@ -1,0 +1,8 @@
+services:
+  garage:
+    volumes:
+      - type: bind
+        source: ${ENDER_STORAGE_ROOT:?Set ENDER_STORAGE_ROOT using the setup wizard}/objects
+        target: /var/lib/garage/data
+        bind:
+          create_host_path: false

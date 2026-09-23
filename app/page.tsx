@@ -1,9 +1,8 @@
-export default function Home() {
-  return (
-    <main className="min-h-screen flex items-center justify-center bg-black">
-      <h1 className="text-4xl font-bold text-white">
-        EnderChest
-      </h1>
-    </main>
-  );
+import { redirect } from "next/navigation";
+import { getSessionUser } from "@/app/lib/auth/session";
+import Drive from "./ui/drive";
+
+export default async function Home() {
+  if (!(await getSessionUser())) redirect("/login");
+  return <Drive />;
 }

@@ -7,11 +7,20 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:admin": "node --test tests/admin-api.test.mjs"
+    "test:admin": "node --test tests/admin-api.test.mjs",
+    "test:storage": "node --test tests/storage-api.test.mjs",
+    "test:s3": "node --env-file=docker/.env --import tsx tests/s3-presigned-smoke.mjs",
+    "test:unit": "node --import tsx --test tests/parse-upload.test.mjs tests/public-url.test.mjs tests/public-link.test.mjs tests/publish-config.test.mjs",
+    "test:setup": "node --test tests/setup-wizard.test.mjs tests/setup-wizard-web.test.mjs",
+    "build:release": "node scripts/build-release.mjs"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1138.0",
+    "@aws-sdk/lib-storage": "^3.1138.0",
+    "@aws-sdk/s3-request-presigner": "^3.1138.0",
     "bcrypt": "^6.0.0",
-    "minio": "^8.0.7",
+    "busboy": "^1.6.0",
+    "lucide-react": "^1.47.0",
     "next": "^16.1.6",
     "pg": "^8.17.2",
     "react": "19.2.3",
@@ -21,6 +30,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/bcrypt": "^6.0.0",
+    "@types/busboy": "^1.5.4",
     "@types/node": "^20",
     "@types/pg": "^8.16.0",
     "@types/react": "^19",
@@ -29,6 +39,7 @@
     "babel-plugin-react-compiler": "1.0.0",
     "eslint": "^9",
     "eslint-config-next": "16.1.4",
+    "playwright-core": "^1.63.0",
     "postcss": "^8.5.8",
     "tailwindcss": "^4.2.2",
     "tsx": "^4.21.0",

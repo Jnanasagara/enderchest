@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101a1b">
+  <meta name="description" content="EnderChest is a private, self-hosted file space. Use it on your own, or invite trusted friends and family to a server you control.">
+  <link rel="canonical" href="https://enderchest.space/">
+  <meta property="og:title" content="EnderChest | Your files, on your server">
+  <meta property="og:description" content="A private file space you host yourself. Keep it personal or invite trusted people to your server.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="https://enderchest.space/assets/enderchest-mark.png">
+  <title>EnderChest | Your files, on your server</title>
+  <link rel="icon" href="/assets/enderchest-mark.png" type="image/png">
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/vendor/locomotive-scroll.min.js" defer></script>
+  <script src="/site.js" defer></script>
+  <script type="importmap">{"imports":{"three":"/vendor/three.module.js"}}</script>
+  <script type="module" src="/hero-chest.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#top" aria-label="EnderChest home"><img class="brand-mark" src="/assets/enderchest-mark.png" alt="" width="32" height="32"><span>EnderChest</span></a>
+      <nav class="main-nav" aria-label="Main navigation">
+        <a href="#why">The idea</a><a href="#inside">Inside</a><a href="#setup">Set up</a><a href="#access">Remote access</a>
+      </nav>
+      <a class="header-cta" href="#download">Get EnderChest <span aria-hidden="true">↗</span></a>
+      <button class="menu-toggle" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="mobile-nav"><span></span><span></span><span></span></button>
+    </div>
+    <nav class="mobile-nav" id="mobile-nav" aria-label="Mobile navigation" hidden>
+      <a href="#why">The idea</a><a href="#inside">Inside</a><a href="#setup">Set up</a><a href="#access">Remote access</a><a href="#download">Get EnderChest</a>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top" aria-labelledby="hero-title">
+      <div class="hero-art" aria-hidden="true"><canvas class="hero-canvas"></canvas><img class="hero-static" src="/assets/ender-chest-static.png" alt="" width="512" height="512"></div>
+      <div class="wrap hero-inner">
+        <p class="eyebrow light">THE SELF-HOSTED FILE SPACE</p>
+        <h1 id="hero-title">EnderChest<span>.</span></h1>
+        <p class="hero-lede">Keep your inventory close.</p>
+        <p class="hero-copy">Your own file space on a computer you control. Keep it just for yourself, or invite trusted friends and family to share it. Your files stay on your server.</p>
+        <div class="hero-actions"><a class="button button-primary" href="#download">Get the full kit <span aria-hidden="true">↓</span></a><a class="text-link light-link" href="#why">Explore the idea <span aria-hidden="true">↗</span></a></div>
+      </div>
+      <div class="hero-footer wrap"><span>001 / BUILT FOR YOUR SERVER</span><span>WINDOWS + LINUX</span><a href="#why">SCROLL TO EXPLORE <span aria-hidden="true">↓</span></a></div>
+    </section>
+
+    <section class="intro section" id="why" aria-labelledby="why-title">
+      <div class="wrap intro-grid">
+        <div><p class="eyebrow">01 / THE IDEA</p><h2 id="why-title">Your server is its own world.</h2></div>
+        <div><p class="section-lede">No shared spawn. No EnderChest-hosted account holding everyone's files.</p><p>Install it on your Windows or Linux computer and choose where files live. Use it privately, or invite people you trust when you're ready. Every installation has its own accounts, database, and storage.</p></div>
+      </div>
+      <div class="wrap feature-line">
+        <div><span class="feature-number">01</span><strong>Files stay with you</strong><span>Garage stores file bytes on the host you choose.</span></div>
+        <div><span class="feature-number">02</span><strong>Invite your circle</strong><span>Create accounts by invite and set storage quotas.</span></div>
+        <div><span class="feature-number">03</span><strong>Use it like a drive</strong><span>Folders, search, previews, downloads, and trash.</span></div>
+      </div>
+    </section>
+
+    <section class="product section" id="inside" aria-labelledby="inside-title">
+      <div class="wrap product-grid">
+        <div class="product-copy"><p class="eyebrow">02 / INSIDE</p><h2 id="inside-title">A familiar drive.<br>A different address.</h2><p>Browse your folders, find a file quickly, and pick up where you left off. It is the same EnderChest experience whether you use it alone or invite others in.</p><a class="text-link" href="#setup">See the setup <span aria-hidden="true">↗</span></a></div>
+        <div class="product-window" aria-label="Illustration of the EnderChest file interface">
+          <div class="window-top"><span class="window-dots"><i></i><i></i><i></i></span><span>ENDERCH<span class="window-accent">E</span>ST</span><span class="window-avatar">A</span></div>
+          <div class="window-body"><div class="window-sidebar"><b>▦ &nbsp; My files</b><span>◷ &nbsp; Recent</span><span>♧ &nbsp; Shared</span><span>▤ &nbsp; Trash</span><div class="window-meter"><small>STORAGE</small><span></span><small>Your machine</small></div></div><div class="window-content"><div class="window-tools"><span>My files <small> / Home</small></span><b>+ New</b></div><div class="window-heading">Name <span>Modified</span></div><div class="window-row"><i class="folder-icon"></i><strong>Family photos</strong><small>Today</small></div><div class="window-row"><i class="folder-icon"></i><strong>Documents</strong><small>Yesterday</small></div><div class="window-row"><i class="file-icon"></i><strong>Weekend plans.pdf</strong><small>Tuesday</small></div><div class="window-row"><i class="file-icon"></i><strong>IMG_2048.jpg</strong><small>Monday</small></div></div></div>
+          <p class="window-caption">INTERFACE ILLUSTRATION / YOUR SERVER HAS THE REAL THING</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="setup section" id="setup" aria-labelledby="setup-title">
+      <div class="wrap">
+        <div class="section-head"><div><p class="eyebrow">03 / SET UP</p><h2 id="setup-title">Pick your platform.<br>Build your base.</h2></div><p>Bring a computer that can stay on. The guided setup creates your first admin account and lets you choose a new or empty folder for files.</p></div>
+        <div class="setup-tabs" role="tablist" aria-label="Choose an operating system"><button type="button" role="tab" id="tab-windows" aria-controls="panel-windows" aria-selected="true">Windows</button><button type="button" role="tab" id="tab-linux" aria-controls="panel-linux" aria-selected="false" tabindex="-1">Linux</button></div>
+        <div class="setup-panel" id="panel-windows" role="tabpanel" aria-labelledby="tab-windows">
+          <div class="setup-panel-head"><span class="eyebrow">WINDOWS 10 / 11</span><p>Three steps, then your local drive is ready.</p></div>
+          <ol class="setup-list"><li><span>01</span><div><strong>Start Docker Desktop</strong><p><a href="https://docs.docker.com/desktop/setup/install/windows-install/" target="_blank" rel="noopener noreferrer">Install Docker Desktop ↗</a> and wait for its engine to start.</p></div></li><li><span>02</span><div><strong>Extract the whole ZIP</strong><p>Keep the app and launchers together in the extracted folder.</p></div></li><li><span>03</span><div><strong>Run the setup launcher</strong><p>Double-click <code>Setup-EnderChest.cmd</code> and follow the local setup page.</p></div></li></ol>
+          <div class="setup-panel-actions"><a class="button button-primary" href="/downloads/EnderChest-0.1.0.zip" download>Download Windows ZIP <span aria-hidden="true">↓</span></a><a class="text-link" href="/guide.html#windows">Detailed guide <span aria-hidden="true">↗</span></a></div>
+        </div>
+        <div class="setup-panel" id="panel-linux" role="tabpanel" aria-labelledby="tab-linux" hidden>
+          <div class="setup-panel-head"><span class="eyebrow">UBUNTU / MINT / LINUX</span><p>Docker Engine and Compose are required first.</p></div>
+          <ol class="setup-list"><li><span>01</span><div><strong>Start Docker Engine</strong><p>Install <a href="https://docs.docker.com/engine/install/" target="_blank" rel="noopener noreferrer">Docker Engine ↗</a> and the <a href="https://docs.docker.com/compose/install/linux/" target="_blank" rel="noopener noreferrer">Compose plugin ↗</a>.</p></div></li><li><span>02</span><div><strong>Extract the full archive</strong><p>Keep the app, Docker files, and launchers in one folder.</p></div></li><li><span>03</span><div><strong>Run setup</strong><p>Desktop hosts get a local setup page. Headless hosts use the terminal.</p></div></li></ol>
+          <div class="command-line"><code id="linux-command">tar -xzf EnderChest-0.1.0.tar.gz &amp;&amp; cd EnderChest-0.1.0 &amp;&amp; bash setup.sh</code><button class="copy-button" type="button" data-copy="linux-command" aria-label="Copy Linux setup command" title="Copy setup command">Copy</button></div>
+          <div class="setup-panel-actions"><a class="button button-primary" href="/downloads/EnderChest-0.1.0.tar.gz" download>Download Linux tar.gz <span aria-hidden="true">↓</span></a><a class="text-link" href="/guide.html#linux">Detailed guide <span aria-hidden="true">↗</span></a></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="access section" id="access" aria-labelledby="access-title">
+      <div class="wrap"><div class="section-head"><div><p class="eyebrow light">04 / REMOTE ACCESS</p><h2 id="access-title">Open the gate.<br>Keep the keys.</h2></div><p>Invited people open your server in a browser. They do not install Docker, and they do not access files belonging to another host.</p></div>
+        <div class="access-layout"><div class="access-options" role="tablist" aria-label="Choose a connection method"><button type="button" role="tab" id="access-tab-funnel" aria-controls="access-panel-funnel" aria-selected="true"><span>01</span><strong>Tailscale Funnel</strong><small>For small personal setups</small></button><button type="button" role="tab" id="access-tab-provider" aria-controls="access-panel-provider" aria-selected="false" tabindex="-1"><span>02</span><strong>Your HTTPS provider</strong><small>Bring a tunnel or proxy</small></button><button type="button" role="tab" id="access-tab-domain" aria-controls="access-panel-domain" aria-selected="false" tabindex="-1"><span>03</span><strong>Your own domain</strong><small>Direct access with Caddy</small></button></div>
+          <div class="access-detail" id="access-panel-funnel" role="tabpanel" aria-labelledby="access-tab-funnel"><p class="eyebrow light">ROUTE 01 / TAILSCALE FUNNEL</p><h3>A public link from your PC.</h3><p>Install Tailscale on the host, sign in, and choose Funnel in the publishing launcher. Your host gets a <code>*.ts.net</code> HTTPS address. Invitees only need a browser.</p><div class="access-facts"><span>NO PORT FORWARDING</span><span>FUNNEL BANDWIDTH LIMITS APPLY</span></div><a href="/guide.html#publish">Read publishing steps <span aria-hidden="true">↗</span></a></div>
+          <div class="access-detail" id="access-panel-provider" role="tabpanel" aria-labelledby="access-tab-provider" hidden><p class="eyebrow light">ROUTE 02 / OWN HTTPS PROVIDER</p><h3>Use the route you already trust.</h3><p>Connect a public HTTPS tunnel or reverse proxy to EnderChest on <code>127.0.0.1:3000</code>. The provider supplies the address; your computer still runs the app and stores the files.</p><div class="access-facts"><span>HOST CONTROLS PROVIDER</span><span>FILE STREAMING REQUIRED</span></div><a href="/guide.html#publish">Read publishing steps <span aria-hidden="true">↗</span></a></div>
+          <div class="access-detail" id="access-panel-domain" role="tabpanel" aria-labelledby="access-tab-domain" hidden><p class="eyebrow light">ROUTE 03 / OWN DOMAIN</p><h3>Put your name on the door.</h3><p>Use your own app and file hostnames, reachable DNS, and ports 80 and 443. The included Caddy setup handles HTTPS. This path needs a public IP or equivalent network access.</p><div class="access-facts"><span>TWO HOSTNAMES</span><span>PUBLIC NETWORK ACCESS</span></div><a href="/guide.html#publish">Read publishing steps <span aria-hidden="true">↗</span></a></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="download section" id="download" aria-labelledby="download-title"><div class="wrap download-grid"><div><p class="eyebrow">05 / GET THE FILES</p><h2 id="download-title">Your server starts here.</h2><p>The full bundle has the app, Docker setup, and guides. Extract all of it. The setup launcher is not a standalone installer.</p><div class="download-actions"><a class="button button-primary" href="/downloads/EnderChest-0.1.0.zip" download>Windows ZIP <span aria-hidden="true">↓</span></a><a class="button button-outline" href="/downloads/EnderChest-0.1.0.tar.gz" download>Linux tar.gz <span aria-hidden="true">↓</span></a></div><p class="download-meta">VERSION 0.1.0 / SELF-HOSTED PREVIEW &nbsp; <a href="/downloads/SHA256SUMS.txt">CHECKSUMS ↗</a> &nbsp; <a href="https://github.com/Jnanasagara/enderchest" target="_blank" rel="noopener noreferrer">SOURCE ↗</a></p></div><div class="download-note"><img class="download-stamp" src="/assets/enderchest-mark.png" alt="" width="62" height="62"><div><strong>No central vault.</strong><p>This website serves the download. Each host serves their own EnderChest UI, accounts, invitations, and files.</p><a href="/guide.html">Read the install guide <span aria-hidden="true">↗</span></a></div></div></div></section>
+
+    <section class="faq section" id="questions" aria-labelledby="faq-title"><div class="wrap faq-grid"><div><p class="eyebrow">06 / QUESTIONS</p><h2 id="faq-title">Before you place a block.</h2></div><div class="faq-list"><details><summary>Do my friends need to install anything?<span aria-hidden="true">+</span></summary><p>No. They open your invite link in a normal browser. They do not need Docker or Tailscale.</p></details><details><summary>Can someone on another server see my files?<span aria-hidden="true">+</span></summary><p>No. Each EnderChest installation has separate users, storage, and invitations. Other hosts cannot browse your server through this website.</p></details><details><summary>Does enderchest.space store my files?<span aria-hidden="true">+</span></summary><p>No. This site offers the software and guide. The files live with the person hosting each instance.</p></details><details><summary>Does my computer need to stay on?<span aria-hidden="true">+</span></summary><p>Yes. Your EnderChest server and its public connection need to be running for invited people to reach it.</p></details><details><summary>Is Tailscale required?<span aria-hidden="true">+</span></summary><p>No. Keep it local, use Funnel, bring your own HTTPS provider, or use your own domain with Caddy.</p></details><details><summary>Who handles backups and updates?<span aria-hidden="true">+</span></summary><p>The host does. Back up the database and object storage, and read the release notes before updating. The install guide points to backup instructions.</p></details></div></div></section>
+  </main>
+
+  <footer class="site-footer"><div class="wrap footer-main"><div><a class="brand" href="#top"><img class="brand-mark" src="/assets/enderchest-mark.png" alt="" width="32" height="32"><span>EnderChest</span></a><p>Your files. Your machine. Your people.</p></div><div class="footer-links"><a href="/guide.html">Install guide</a><a href="https://github.com/Jnanasagara/enderchest" target="_blank" rel="noopener noreferrer">GitHub ↗</a><a href="https://github.com/Jnanasagara/enderchest/issues" target="_blank" rel="noopener noreferrer">Report an issue ↗</a></div></div><div class="wrap footer-bottom"><span>© <span id="year">2026</span> EnderChest</span><span>Not affiliated with Mojang or Microsoft.</span><span>3D chest by <a href="https://sketchfab.com/3d-models/minecraft-animated-ender-chest-86dcfd5ed3a54dee854454400db4d3d2" target="_blank" rel="noopener noreferrer">CanYuTsai</a> · <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank" rel="noopener noreferrer">CC BY 4.0</a></span></div></footer>
+</body>
+</html>

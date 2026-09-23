@@ -13,9 +13,13 @@ if [ ! -f "${backup_file}" ]; then
   exit 1
 fi
 
+set -- --env-file docker/.env -f docker/docker-compose.yml
+if grep -qx 'ENDER_SETUP_VERSION=1' docker/.env; then
+  set -- "$@" -f docker/compose.install.yml
+fi
+
 docker compose \
-  --env-file docker/.env \
-  -f docker/docker-compose.yml \
+  "$@" \
   exec -T postgres \
   sh -c 'pg_restore --username="$POSTGRES_USER" --dbname="$POSTGRES_DB" --clean --if-exists --exit-on-error' \
   < "${backup_file}"

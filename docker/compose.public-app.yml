@@ -1,0 +1,17 @@
+services:
+  app:
+    environment:
+      SESSION_COOKIE_SECURE: "true"
+      PUBLIC_APP_URL: ${PUBLIC_APP_URL:?Set PUBLIC_APP_URL to the public HTTPS origin}
+      PRESIGNED_URL_MODE: app
+      PUBLIC_LINK_SECRET: ${PUBLIC_LINK_SECRET:?Set PUBLIC_LINK_SECRET to a random secret}
+  cleanup:
+    image: curlimages/curl:8.16.0
+    restart: unless-stopped
+    environment:
+      MAINTENANCE_TOKEN: ${MAINTENANCE_TOKEN}
+    entrypoint: ["sh", "-c"]
+    command: 'while true; do curl -fsS -X POST -H "Authorization: Bearer $$MAINTENANCE_TOKEN" http://app:3000/api/maintenance/cleanup; sleep 3600; done'
+    depends_on:
+      app:
+        condition: service_healthy

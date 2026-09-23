@@ -40,13 +40,23 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: "Parent folder not found" }, { status: 404 });
     }
 
+    const path = await query<{ id: string; name: string }>(
+      `WITH RECURSIVE ancestors AS (
+        SELECT id, parent_id, name, 0 AS depth FROM folders WHERE id = $1 AND owner_id = $2
+        UNION ALL
+        SELECT f.id, f.parent_id, f.name, a.depth + 1 FROM folders f JOIN ancestors a ON a.parent_id = f.id WHERE f.owner_id = $2
+      ) SELECT id, name FROM ancestors ORDER BY depth DESC`,
+      [parentId, userId]
+    );
+
     // Step 2: Fetch child folders
     const folders = await query<{
       id: string;
       name: string;
+      updated_at: string;
     }>(
       `
-      SELECT id, name
+      SELECT id, name, updated_at
       FROM folders
       WHERE parent_id = $1
         AND owner_id = $2
@@ -61,9 +71,11 @@ export async function GET(req: Request) {
       id: string;
       name: string;
       size_bytes: number;
+      mime_type: string;
+      updated_at: string;
     }>(
       `
-      SELECT id, name, size_bytes
+      SELECT id, name, size_bytes, mime_type, updated_at
       FROM files
       WHERE folder_id = $1
         AND owner_id = $2
@@ -74,11 +86,14 @@ export async function GET(req: Request) {
     );
 
     return NextResponse.json({
+      path,
       folders,
       files: files.map(file => ({
         id: file.id,
         name: file.name,
         size: file.size_bytes,
+        mimeType: file.mime_type,
+        updatedAt: file.updated_at,
         downloadUrl: `/api/files/${file.id}/download`
       }))
     });
@@ -113,7 +128,7 @@ export async function POST(req: Request) {
 
     const { name, parentId } = parsed.value ?? {};
 
-    if (!name || !parentId) {
+    if (typeof name !== "string" || !name.trim() || name.trim().length > 255 || !parentId) {
       return NextResponse.json({ error: "Missing fields" }, { status: 400 });
     }
 
@@ -145,7 +160,7 @@ export async function POST(req: Request) {
       VALUES ($1, $2, $3, $4, NOW(), NOW())
       RETURNING id, name, parent_id
       `,
-      [folderId, userId, parentId, name]
+      [folderId, userId, parentId, name.trim()]
     );
 
     return NextResponse.json(folders[0]);

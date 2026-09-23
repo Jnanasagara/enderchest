@@ -52,7 +52,7 @@ export async function POST(req: Request) {
   const defaultExpires = Number(process.env.INVITE_DEFAULT_EXPIRES_HOURS ?? 24);
   const fallbackExpires = Number.isFinite(defaultExpires) ? defaultExpires : 24;
   const expirationHours = expiresInHours ?? fallbackExpires;
-  if (!Number.isFinite(expirationHours) || expirationHours <= 0) {
+  if (!Number.isFinite(expirationHours) || expirationHours <= 0 || expirationHours > 720) {
     return NextResponse.json({ error: "Invalid expiration" }, { status: 400 });
   }
 

@@ -80,14 +80,15 @@ export async function PATCH(req: Request) {
     `
     UPDATE quotas
     SET allocated_bytes = $1
-    WHERE user_id = $2
+    WHERE user_id = $2 AND used_bytes <= $1
     RETURNING user_id
     `,
     [allocatedBytes, targetUserId]
   );
 
   if (result.length === 0) {
-    return NextResponse.json({ error: "User not found" }, { status: 404 });
+    const exists = await query("SELECT user_id FROM quotas WHERE user_id = $1", [targetUserId]);
+    return NextResponse.json({ error: exists.length ? "Quota cannot be lower than used storage" : "User not found" }, { status: exists.length ? 409 : 404 });
   }
 
   await query(

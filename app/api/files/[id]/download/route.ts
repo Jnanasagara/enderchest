@@ -1,65 +1,23 @@
-import { NextRequest } from "next/server";
-import { minioClient } from "@/app/lib/minio";
 import { getSessionUser } from "@/app/lib/auth/session";
 import { pool } from "@/app/lib/db/pool";
+import { objectStorage } from "@/app/lib/storage/s3";
+import { fileResponse } from "@/app/lib/storage/file-response";
 import { logError } from "@/app/lib/http/logging";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const userId = await getSessionUser();
-
-    if (!userId) {
-      return Response.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const { id: fileId } = await params;
-
-    // Step 1: Get file from DB
-    const result = await pool.query(
-      `
-      SELECT object_key, mime_type
-      FROM files
-      WHERE id = $1
-        AND owner_id = $2
-        AND deleted_at IS NULL
-      `,
-      [fileId, userId]
+    if (!userId) return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const { id } = await params;
+    const result = await pool.query<{ name: string; object_key: string; mime_type: string; size_bytes: string }>(
+      "SELECT name, object_key, mime_type, size_bytes FROM files WHERE id = $1 AND owner_id = $2 AND deleted_at IS NULL", [id, userId]
     );
-
-    if (result.rows.length === 0) {
-      return Response.json({ error: "File not found" }, { status: 404 });
-    }
-
     const file = result.rows[0];
-
-    // Step 2: Get file from MinIO
-    const stream = await minioClient.getObject(
-      "enderchest",
-      file.object_key
-    );
-
-    // Step 3: Convert stream → buffer
-    const chunks: Buffer[] = [];
-
-    for await (const chunk of stream) {
-      chunks.push(chunk);
-    }
-
-    const fileBuffer = Buffer.concat(chunks);
-
-    // Step 4: Return file
-    return new Response(fileBuffer, {
-      headers: {
-        "Content-Type": file.mime_type,
-        "Content-Disposition": "attachment",
-      },
-    });
-
-  } catch (error: unknown) {
+    if (!file) return Response.json({ error: "File not found" }, { status: 404 });
+    const stream = await objectStorage.getObject(file.object_key);
+    return fileResponse(file, stream, new URL(req.url).searchParams.get("inline") === "1");
+  } catch (error) {
     logError("files.download.failed", { error: String(error) });
-    return Response.json({ error: "Internal server error" }, { status: 500 });
+    return Response.json({ error: "Download failed" }, { status: 500 });
   }
 }

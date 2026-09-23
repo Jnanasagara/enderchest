@@ -1,5 +1,10 @@
 .git
 .next
 node_modules
-docker/.env
+site
+backups
+enderchest-data
+.env*
+docker/.env*
+docker/.setup-storage-path*
 npm-debug.log*

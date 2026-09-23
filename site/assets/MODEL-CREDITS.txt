@@ -1,0 +1,7 @@
+Minecraft Animated Ender Chest by CanYuTsai
+Source: https://sketchfab.com/3d-models/minecraft-animated-ender-chest-86dcfd5ed3a54dee854454400db4d3d2
+License: Creative Commons Attribution 4.0 (CC BY 4.0)
+License text: https://creativecommons.org/licenses/by/4.0/
+
+The supplied glTF model and embedded texture are used without geometry or texture edits.
+EnderChest changes the display scale, lighting, and hover lid pose, adds two original folder icons that rise when opened, and provides a static PNG render for smaller screens.

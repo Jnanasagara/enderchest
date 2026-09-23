@@ -1,0 +1,39 @@
+services:
+  app:
+    environment:
+      SESSION_COOKIE_SECURE: "true"
+      PUBLIC_APP_URL: https://${DOMAIN:?Set DOMAIN to this installation's app hostname}
+      S3_PUBLIC_ENDPOINT: https://${S3_PUBLIC_DOMAIN:?Set S3_PUBLIC_DOMAIN to this installation's file hostname}
+  s3-init:
+    environment:
+      S3_CORS_ORIGINS: https://${DOMAIN:?Set DOMAIN to this installation's app hostname}
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:?Set DOMAIN to this installation's app hostname}
+      S3_PUBLIC_DOMAIN: ${S3_PUBLIC_DOMAIN:?Set S3_PUBLIC_DOMAIN to this installation's file hostname}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      app:
+        condition: service_healthy
+  cleanup:
+    image: curlimages/curl:8.16.0
+    restart: unless-stopped
+    environment:
+      MAINTENANCE_TOKEN: ${MAINTENANCE_TOKEN}
+    entrypoint: ["sh", "-c"]
+    command: 'while true; do curl -fsS -X POST -H "Authorization: Bearer $$MAINTENANCE_TOKEN" http://app:3000/api/maintenance/cleanup; sleep 3600; done'
+    depends_on:
+      app:
+        condition: service_healthy
+
+volumes:
+  caddy_data:
+  caddy_config:

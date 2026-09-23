@@ -2,8 +2,8 @@ import test from "node:test";
 import assert from "node:assert/strict";
 
 const baseUrl = process.env.TEST_BASE_URL ?? "http://localhost:3000";
-const adminEmail = process.env.TEST_ADMIN_EMAIL ?? "admin@example.com";
-const adminPassword = process.env.TEST_ADMIN_PASSWORD ?? "replace_me";
+const adminEmail = process.env.TEST_ADMIN_EMAIL ?? process.env.BOOTSTRAP_ADMIN_EMAIL ?? "admin@example.com";
+const adminPassword = process.env.TEST_ADMIN_PASSWORD ?? process.env.BOOTSTRAP_ADMIN_PASSWORD ?? "replace_me";
 
 const cookieJar = new Map();
 
@@ -164,7 +164,7 @@ test("admin endpoints", async () => {
     method: "PATCH",
     authenticated: true,
     withCsrf: true,
-    json: { userId: createdUser.id, allocatedBytes: quotaRow.allocated_bytes + 1024 },
+    json: { userId: createdUser.id, allocatedBytes: Number(quotaRow.allocated_bytes) + 1024 },
   });
 
   assert.equal(updateQuota.response.status, 200, "quota update should succeed");

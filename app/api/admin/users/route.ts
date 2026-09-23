@@ -4,6 +4,7 @@ import { pool } from "@/app/lib/db/pool";
 import { getSessionUser, deleteUserSessions } from "@/app/lib/auth/session";
 import { requireCsrf } from "@/app/lib/auth/csrf";
 import { readJsonBody } from "@/app/lib/http/request";
+import { objectStorage } from "@/app/lib/storage/s3";
 
 export async function GET() {
   const userId = await getSessionUser();
@@ -242,6 +243,12 @@ export async function DELETE(req: Request) {
       [userId, userIdToDelete]
     );
 
+    const objects = await client.query<{ object_key: string }>(
+      "SELECT object_key FROM files WHERE owner_id = $1", [userIdToDelete]
+    );
+    for (const object of objects.rows) {
+      await objectStorage.removeObject(object.object_key);
+    }
     await client.query("DELETE FROM users WHERE id = $1", [userIdToDelete]);
     await client.query("COMMIT");
 
