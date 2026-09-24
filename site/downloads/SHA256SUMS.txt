@@ -1,2 +1,2 @@
-02b7b2c65c5cc3d93af28fb5cc1e3ddc2356f006bbf2cec366b9b90381f05347  EnderChest-0.1.2.tar.gz
-5912c3cace7e8717ec41e54eb289959716faca876394b3a45b3c1ccdf1c9b942  EnderChest-0.1.2.zip
+1fab5b1bfc60efdf22b99b4a252b78baecd14f6c5ffe1ea8f1947b029c93eda6  EnderChest-0.1.3.tar.gz
+7449ef9b3ba3b471f69171dc39d250bc3cc3175c85c7b043d201c38d010fb8d4  EnderChest-0.1.3.zip

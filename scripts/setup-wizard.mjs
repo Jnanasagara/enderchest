@@ -94,7 +94,7 @@ if (mode === "cli") {
   const server = createServer(async (req, res) => {
     res.setHeader("Cache-Control", "no-store");
     res.setHeader("X-Content-Type-Options", "nosniff");
-    res.setHeader("Referrer-Policy", "no-referrer");
+    res.setHeader("Referrer-Policy", "same-origin");
     res.setHeader("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; form-action 'self'; base-uri 'none'; frame-ancestors 'none'");
     if (![new URL(origin).host, new URL(alternateOrigin).host].includes(req.headers.host)) { res.writeHead(403).end("Forbidden"); return; }
     if (req.method === "GET" && req.url === "/health") { res.writeHead(200).end("ok"); return; }

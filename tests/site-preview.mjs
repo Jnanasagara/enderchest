@@ -233,7 +233,7 @@ try {
   assert.ok(gap > 8, `wide hero chest touches the title: ${gap}px gap`);
   await wide.screenshot({ path: 'backups/site-preview/wide-viewport.png' });
   await wide.close();
-  for (const path of ["/guide.html", "/downloads/EnderChest-0.1.2.zip", "/downloads/EnderChest-0.1.2.tar.gz", "/downloads/SHA256SUMS.txt", "/assets/enderchest-mark.png", "/assets/ender-chest.gltf", "/assets/ender-chest-static.png", "/vendor/three.module.js", "/vendor/three.core.js", "/vendor/loaders/GLTFLoader.js", "/vendor/utils/BufferGeometryUtils.js"]) {
+  for (const path of ["/guide.html", "/downloads/EnderChest-0.1.3.zip", "/downloads/EnderChest-0.1.3.tar.gz", "/downloads/SHA256SUMS.txt", "/assets/enderchest-mark.png", "/assets/ender-chest.gltf", "/assets/ender-chest-static.png", "/vendor/three.module.js", "/vendor/three.core.js", "/vendor/loaders/GLTFLoader.js", "/vendor/utils/BufferGeometryUtils.js"]) {
     const response = await fetch(new URL(path, origin), { method: "HEAD" });
     assert.equal(response.status, 200, `${path} is unavailable`);
   }

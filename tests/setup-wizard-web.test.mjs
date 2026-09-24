@@ -53,9 +53,21 @@ test("web wizard creates a new setup and refuses to overwrite it", async () => {
     const headers = { origin: base, "content-type": "application/x-www-form-urlencoded" };
     assert.equal((await fetch(`${base}/create`, { method: "POST", headers: { ...headers, origin: "http://attacker.invalid" }, body })).status, 404);
     assert.equal((await fetch(`${base}/create`, { method: "POST", headers, body })).status, 400);
-    body.set("confirmation", "ValidPass$#1234");
-    assert.equal((await fetch(`${base}/create`, { method: "POST", headers, body })).status, 200);
-    const exitCode = await new Promise((resolve, reject) => {
+    const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH ?? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", headless: true });
+    try {
+      const page = await browser.newPage();
+      await page.goto(base);
+      await page.getByLabel("Email address").fill("admin@example.com");
+      await page.getByLabel("Password", { exact: true }).fill("ValidPass$#1234");
+      await page.getByLabel("Confirm password").fill("ValidPass$#1234");
+      await page.getByLabel("Storage folder on this computer").fill("D:/Family Files");
+      const responsePromise = page.waitForResponse(response => response.url() === `${base}/create`);
+      await page.getByRole("button", { name: "Create server" }).click();
+      const response = await responsePromise;
+      assert.equal(response.status(), 200, `Browser form submission returned ${response.status()}: ${await response.text()} (Origin: ${await response.request().headerValue("origin")}, Fetch-Site: ${await response.request().headerValue("sec-fetch-site")})`);
+      await page.getByRole("heading", { name: "Settings saved" }).waitFor();
+    } finally { await browser.close(); }
+    const exitCode = child.exitCode ?? await new Promise((resolve, reject) => {
       const timeout = setTimeout(() => reject(new Error("Wizard did not exit")), 5000);
       child.on("exit", code => { clearTimeout(timeout); resolve(code); });
     });
@@ -86,6 +98,47 @@ test("web wizard creates a new setup and refuses to overwrite it", async () => {
         spawnSync("docker", [...args, "down"], { encoding: "utf8" });
       }
     }
+  } finally {
+    if (child.exitCode === null) child.kill();
+  }
+});
+
+test("Linux web wizard saves settings from a browser form", async () => {
+  const root = path.resolve("backups", "setup-tests", randomUUID());
+  await mkdir(path.join(root, "scripts"), { recursive: true });
+  await mkdir(path.join(root, "docker"));
+  await copyFile("scripts/setup-wizard.mjs", path.join(root, "scripts/setup-wizard.mjs"));
+  await copyFile("scripts/setup-wizard-core.mjs", path.join(root, "scripts/setup-wizard-core.mjs"));
+  await copyFile("docker/env.example", path.join(root, "docker/env.example"));
+  const port = await freePort();
+  const base = `http://127.0.0.1:${port}`;
+  const child = spawn(process.execPath, [path.join(root, "scripts/setup-wizard.mjs"), "web"], {
+    cwd: root,
+    env: { ...process.env, ENDER_HOST_OS: "linux", ENDER_HOST_ROOT: "/srv/enderchest", ENDER_SETUP_PORT: String(port), ENDER_SETUP_BIND: "127.0.0.1" },
+    stdio: "ignore",
+  });
+  try {
+    let ready = false;
+    for (let attempt = 0; attempt < 50; attempt++) {
+      try { ready = (await fetch(`${base}/health`)).ok; if (ready) break; } catch { /* Starting. */ }
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    assert.ok(ready, "Linux wizard did not start");
+    const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH ?? "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe", headless: true });
+    try {
+      const page = await browser.newPage();
+      await page.goto(base);
+      await page.getByLabel("Email address").fill("linux-admin@example.com");
+      await page.getByLabel("Password", { exact: true }).fill("ValidPass$#1234");
+      await page.getByLabel("Confirm password").fill("ValidPass$#1234");
+      await page.getByLabel("Storage folder on this computer").fill("/srv/enderchest-files");
+      const responsePromise = page.waitForResponse(response => response.url() === `${base}/create`);
+      await page.getByRole("button", { name: "Create server" }).click();
+      assert.equal((await responsePromise).status(), 200);
+      await page.getByRole("heading", { name: "Settings saved" }).waitFor();
+    } finally { await browser.close(); }
+    assert.equal(await readFile(path.join(root, "docker/.setup-storage-path.pending"), "utf8"), "/srv/enderchest-files");
+    assert.match(await readFile(path.join(root, "docker/.env.pending"), "utf8"), /^ENDER_STORAGE_ROOT='\/srv\/enderchest-files'$/m);
   } finally {
     if (child.exitCode === null) child.kill();
   }
