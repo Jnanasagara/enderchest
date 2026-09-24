@@ -38,6 +38,7 @@ test("storage lifecycle and quota", async () => {
 
   try {
     assert.equal((await user("/api/auth/login", { method: "POST", json: { email, password: userPassword } })).status, 200);
+    assert.equal((await user("/api/admin/host")).status, 403);
     const root = await user("/api/folders/root");
     assert.equal(root.status, 200);
     const rootId = root.data.id;

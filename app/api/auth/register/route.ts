@@ -6,7 +6,7 @@ import { pool } from "@/app/lib/db/pool";
 import { getDefaultQuotaBytes } from "@/app/lib/storage/quota";
 import { normalizeEmail, isValidEmail, validatePassword } from "@/app/lib/auth/validation";
 import { checkRateLimit } from "@/app/lib/auth/rate-limit";
-import { getClientIp, readJsonBody } from "@/app/lib/http/request";
+import { readJsonBody } from "@/app/lib/http/request";
 import { logError } from "@/app/lib/http/logging";
 
 export async function POST(req: Request) {
@@ -20,8 +20,9 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: parsed.error }, { status: 400 });
   }
 
-  const { password, inviteToken } = parsed.value ?? {};
-  const email = parsed.value?.email ? normalizeEmail(parsed.value.email) : "";
+  const password = typeof parsed.value?.password === "string" ? parsed.value.password : "";
+  const inviteToken = typeof parsed.value?.inviteToken === "string" ? parsed.value.inviteToken : "";
+  const email = typeof parsed.value?.email === "string" ? normalizeEmail(parsed.value.email) : "";
 
   if (!email || !password || !inviteToken) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
@@ -36,8 +37,24 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: passwordError }, { status: 400 });
   }
 
-  const ip = getClientIp(req);
-  const rateKey = `register:${ip}:${email}`;
+  if (!/^[a-f0-9]{64}$/.test(inviteToken)) {
+    return NextResponse.json({ error: "Invalid invite" }, { status: 400 });
+  }
+
+  try {
+    const validInvite = await pool.query(
+      "SELECT 1 FROM invites WHERE token = $1 AND used_at IS NULL AND expires_at > NOW()",
+      [inviteToken]
+    );
+    if (!validInvite.rowCount) {
+      return NextResponse.json({ error: "Invalid invite" }, { status: 400 });
+    }
+  } catch (error) {
+    logError("register.invite_check.failed", { error: String(error) });
+    return NextResponse.json({ error: "Registration unavailable" }, { status: 503 });
+  }
+
+  const rateKey = `register:${crypto.createHash("sha256").update(inviteToken).digest("hex")}`;
   const maxAttempts = Number(process.env.REGISTER_RATE_LIMIT_MAX ?? 5);
   const windowMs = Number(process.env.REGISTER_RATE_LIMIT_WINDOW_MS ?? 30 * 60 * 1000);
   const blockMs = Number(process.env.REGISTER_RATE_LIMIT_BLOCK_MS ?? 30 * 60 * 1000);

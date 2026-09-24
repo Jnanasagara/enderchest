@@ -38,6 +38,7 @@ try {
   for (const directory of directories) {
     cpSync(path.join(root, directory), path.join(packageRoot, directory), { recursive: true, filter: allowed });
   }
+  mkdirSync(path.join(packageRoot, "backups"));
   mkdirSync(destination, { recursive: true });
   const tarball = path.join(destination, `${name}.tar.gz`);
   const zipfile = path.join(destination, `${name}.zip`);

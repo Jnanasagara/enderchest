@@ -17,6 +17,11 @@ export async function checkRateLimit(
   try {
     await client.query("BEGIN");
 
+    await client.query(
+      "INSERT INTO rate_limits (key, window_start, attempts) VALUES ($1, $2, 0) ON CONFLICT (key) DO NOTHING",
+      [key, now]
+    );
+
     const existing = await client.query<{
       window_start: Date;
       attempts: number;
@@ -25,15 +30,6 @@ export async function checkRateLimit(
       "SELECT window_start, attempts, blocked_until FROM rate_limits WHERE key = $1 FOR UPDATE",
       [key]
     );
-
-    if (existing.rows.length === 0) {
-      await client.query(
-        "INSERT INTO rate_limits (key, window_start, attempts) VALUES ($1, $2, $3)",
-        [key, now, 1]
-      );
-      await client.query("COMMIT");
-      return { allowed: true, retryAfterSeconds: null };
-    }
 
     const row = existing.rows[0];
 

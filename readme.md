@@ -18,6 +18,9 @@ Run `npm run build:release` before deploying the site. The launchers cannot be
 downloaded and run alone. See `site/README.md` for Vercel or Railway setup;
 the local setup scripts do not deploy the product website.
 
+For updates, monitoring, backups, and troubleshooting on an installed host, see
+[Operating EnderChest](docs/operations.md).
+
 ## Local Docker Setup
 
 ### Guided first-run setup
@@ -197,12 +200,16 @@ Files and folders use soft deletion. Trashing a folder recursively trashes its
 descendant folders and contained files. Active names must be unique within the
 same parent folder, while names belonging only to trashed items may be reused.
 
-Create a PostgreSQL backup from the repository root on Ubuntu or in Git Bash:
+On Linux, make one coordinated, checksummed database-and-object backup:
 
 ```bash
-sh docker/scripts/backup-db.sh
-sh docker/scripts/backup-storage.sh
+bash scripts/backup-all.sh backups /mnt/enderchest-backups
 ```
+
+The second argument is optional. It copies the complete backup to a separate
+mounted disk or share. The older `backup-db.sh` and `backup-storage.sh` scripts
+remain available for individual manual exports, but they do not stop writes or
+create a matching pair.
 
 Restore both backups only during a maintenance window with the app stopped.
 Restore objects into a fresh Garage bucket when rebuilding a server:
@@ -232,6 +239,8 @@ Test a backup without touching live volumes:
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/recovery-drill.ps1 -BackupPath backups\enderchest-<timestamp>
 powershell -NoProfile -ExecutionPolicy Bypass -File scripts/health-check.ps1
 ```
+
+On Linux, use `bash scripts/health-check.sh` for the same service checks.
 
 The drill checks backup hashes, restores into fresh `enderchest-recovery` Docker
 volumes, verifies every database file against Garage, restarts Garage, and

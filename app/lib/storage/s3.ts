@@ -28,6 +28,13 @@ function connection() {
 }
 
 export const objectStorage = {
+  async checkHealth() {
+    const { client, bucket } = connection();
+    await client.send(new ListObjectsV2Command({ Bucket: bucket, MaxKeys: 1 }), {
+      abortSignal: AbortSignal.timeout(5000),
+    });
+  },
+
   async putObject(key: string, body: Readable, size: number, contentType: string) {
     const { client, bucket } = connection();
     if (size === 0) {

@@ -6,3 +6,11 @@ services:
         target: /var/lib/garage/data
         bind:
           create_host_path: false
+  app:
+    volumes:
+      - type: bind
+        source: ${ENDER_STORAGE_ROOT:?Set ENDER_STORAGE_ROOT using the setup wizard}/objects
+        target: /status/storage
+        read_only: true
+        bind:
+          create_host_path: false

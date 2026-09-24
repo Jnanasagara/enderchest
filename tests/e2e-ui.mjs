@@ -93,6 +93,11 @@ try {
   await admin.getByRole("heading", { name: "Users" }).waitFor();
   await noHorizontalOverflow(admin);
   await admin.screenshot({ path: `${output}/desktop-admin.png`, fullPage: true });
+  await admin.getByRole("navigation", { name: "Administration" }).getByRole("button", { name: "Host" }).click();
+  await admin.getByRole("heading", { name: "Services" }).waitFor();
+  await admin.getByText("Connected", { exact: true }).first().waitFor();
+  await noHorizontalOverflow(admin);
+  await admin.screenshot({ path: `${output}/desktop-host.png`, fullPage: true });
   await admin.getByRole("navigation", { name: "Administration" }).getByRole("button", { name: "Invitations" }).click();
   await admin.getByRole("button", { name: "New invitation" }).click();
   await admin.getByRole("status").filter({ hasText: "Invite created" }).waitFor();
@@ -121,6 +126,8 @@ try {
   await user.screenshot({ path: `${output}/mobile-settings.png`, fullPage: true });
   const denied = await user.request.get(`${base}/api/admin/users`);
   assert.equal(denied.status(), 403);
+  const hostDenied = await user.request.get(`${base}/api/admin/host`);
+  assert.equal(hostDenied.status(), 403);
 
   await admin.getByRole("navigation", { name: "Administration" }).getByRole("button", { name: "Users" }).click();
   const userRow = admin.locator(".admin-table tr").filter({ hasText: userEmail });
@@ -147,6 +154,11 @@ try {
   assert.ok(await mobileActions.getByRole("button", { name: "Suspend" }).isVisible(), "Mobile user actions must be visible");
   await noHorizontalOverflow(mobileAdmin);
   await mobileAdmin.screenshot({ path: `${output}/mobile-admin.png`, fullPage: true });
+  await mobileAdmin.getByRole("navigation", { name: "Administration" }).getByRole("button", { name: "Host" }).click();
+  await mobileAdmin.getByRole("heading", { name: "Services" }).waitFor();
+  await mobileAdmin.getByText("Connected", { exact: true }).first().waitFor();
+  await noHorizontalOverflow(mobileAdmin);
+  await mobileAdmin.screenshot({ path: `${output}/mobile-host.png`, fullPage: true });
   assert.deepEqual(errors, []);
   process.stdout.write(`UI acceptance passed. Screenshots: ${output}\n`);
 } finally {

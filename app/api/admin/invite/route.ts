@@ -4,7 +4,7 @@ import { query } from "@/app/lib/db";
 import { getSessionUser } from "@/app/lib/auth/session";
 import { requireCsrf } from "@/app/lib/auth/csrf";
 import { checkRateLimit } from "@/app/lib/auth/rate-limit";
-import { getClientIp, readJsonBody } from "@/app/lib/http/request";
+import { readJsonBody } from "@/app/lib/http/request";
 
 export async function POST(req: Request) {
   const csrfError = requireCsrf(req);
@@ -56,8 +56,7 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Invalid expiration" }, { status: 400 });
   }
 
-  const ip = getClientIp(req);
-  const rateKey = `invite:${ip}:${userId}`;
+  const rateKey = `invite:${userId}`;
   const maxAttempts = Number(process.env.INVITE_RATE_LIMIT_MAX ?? 10);
   const windowMs = Number(process.env.INVITE_RATE_LIMIT_WINDOW_MS ?? 60 * 60 * 1000);
   const blockMs = Number(process.env.INVITE_RATE_LIMIT_BLOCK_MS ?? 60 * 60 * 1000);

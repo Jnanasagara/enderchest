@@ -115,6 +115,7 @@ if [[ -f docker/.env.public ]]; then
 fi
 
 printf 'Starting EnderChest. The first build can take several minutes...\n'
+mkdir -p -- "$root/backups"
 "${compose[@]}" up -d --build --wait || fail "Docker could not start EnderChest. Read the error above, check free disk space and whether port 3000 is in use, then rerun setup. Existing volumes and files were not removed."
 printf 'EnderChest is ready at http://localhost:3000\nUploaded file bytes: %s/objects\n' "$storage_root"
 printf 'For access outside this computer, follow docs/public-access.md before sharing invitation links.\n'

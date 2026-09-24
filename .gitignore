@@ -25,12 +25,23 @@
 # next.js
 /.next/
 /out/
+/.turbo/
+/.cache/
+.eslintcache
 
 # production
 /build
 
 # misc
 .DS_Store
+Thumbs.db
+Desktop.ini
+/.vscode/
+/.idea/
+/.fleet/
+*.swp
+*.swo
+*~
 *.pem
 AGENTS.md
 CLAUDE.md

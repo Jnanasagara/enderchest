@@ -11,7 +11,7 @@ import {
 } from "@/app/lib/auth/cookies";
 import { createCsrfToken } from "@/app/lib/auth/csrf";
 import { checkRateLimit } from "@/app/lib/auth/rate-limit";
-import { getClientIp, getCookieValue, readJsonBody } from "@/app/lib/http/request";
+import { getCookieValue, readJsonBody } from "@/app/lib/http/request";
 import { logError } from "@/app/lib/http/logging";
 
 export async function POST(req: Request){
@@ -24,8 +24,8 @@ export async function POST(req: Request){
             return NextResponse.json({ error: parsed.error }, { status: 400 });
         }
 
-        const email = parsed.value?.email ? normalizeEmail(parsed.value.email) : "";
-        const password = parsed.value?.password ?? "";
+        const email = typeof parsed.value?.email === "string" ? normalizeEmail(parsed.value.email) : "";
+        const password = typeof parsed.value?.password === "string" ? parsed.value.password : "";
 
         if(!email || !password){
             return NextResponse.json(
@@ -38,8 +38,7 @@ export async function POST(req: Request){
             return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
         }
 
-        const ip = getClientIp(req);
-        const rateKey = `login:${ip}:${email}`;
+        const rateKey = `login:${email}`;
         const maxAttempts = Number(process.env.LOGIN_RATE_LIMIT_MAX ?? 5);
         const windowMs = Number(process.env.LOGIN_RATE_LIMIT_WINDOW_MS ?? 10 * 60 * 1000);
         const blockMs = Number(process.env.LOGIN_RATE_LIMIT_BLOCK_MS ?? 15 * 60 * 1000);

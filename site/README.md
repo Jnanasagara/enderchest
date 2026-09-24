@@ -14,7 +14,7 @@ From the repository root, run `npm run build:release`. This creates the ZIP,
 tar.gz, and SHA-256 checksum file in `site/downloads/`. The bundle contains the
 application and setup launchers, but excludes local `.env` files, database
 volumes, object storage, backups, and the product site. Rebuild and review the
-bundles whenever the app changes. The site currently links version 0.1.0; update
+bundles whenever the app changes. The site currently links version 0.1.2; update
 both site pages when you change the version in `package.json`.
 
 ## Vercel

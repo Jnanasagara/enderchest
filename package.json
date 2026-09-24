@@ -1,6 +1,6 @@
 {
   "name": "enderchest",
-  "version": "0.1.0",
+  "version": "0.1.2",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,7 +10,8 @@
     "test:admin": "node --test tests/admin-api.test.mjs",
     "test:storage": "node --test tests/storage-api.test.mjs",
     "test:s3": "node --env-file=docker/.env --import tsx tests/s3-presigned-smoke.mjs",
-    "test:unit": "node --import tsx --test tests/parse-upload.test.mjs tests/public-url.test.mjs tests/public-link.test.mjs tests/publish-config.test.mjs",
+    "test:unit": "node --import tsx --test tests/parse-upload.test.mjs tests/public-url.test.mjs tests/public-link.test.mjs tests/publish-config.test.mjs tests/request.test.mjs tests/host-status.test.mjs",
+    "test:security": "node --test tests/security-api.test.mjs",
     "test:setup": "node --test tests/setup-wizard.test.mjs tests/setup-wizard-web.test.mjs",
     "build:release": "node scripts/build-release.mjs"
   },

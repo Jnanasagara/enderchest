@@ -100,6 +100,9 @@ services:
     container_name: enderchest_app
     ports:
       - "127.0.0.1:3000:3000"
+    volumes:
+      - enderchest_garage_data:/status/storage:ro
+      - ${ENDER_BACKUP_ROOT:-../backups}:/status/backups:ro
     environment:
       NODE_ENV: production
       POSTGRES_HOST: postgres
@@ -114,6 +117,18 @@ services:
       S3_ACCESS_KEY_ID: ${S3_ACCESS_KEY_ID}
       S3_SECRET_ACCESS_KEY: ${S3_SECRET_ACCESS_KEY}
       DEFAULT_QUOTA_BYTES: ${DEFAULT_QUOTA_BYTES:-10737418240}
+      INVITE_DEFAULT_EXPIRES_HOURS: ${INVITE_DEFAULT_EXPIRES_HOURS:-24}
+      PASSWORD_MIN_LENGTH: ${PASSWORD_MIN_LENGTH:-12}
+      PASSWORD_MAX_LENGTH: ${PASSWORD_MAX_LENGTH:-128}
+      LOGIN_RATE_LIMIT_MAX: ${LOGIN_RATE_LIMIT_MAX:-5}
+      LOGIN_RATE_LIMIT_WINDOW_MS: ${LOGIN_RATE_LIMIT_WINDOW_MS:-600000}
+      LOGIN_RATE_LIMIT_BLOCK_MS: ${LOGIN_RATE_LIMIT_BLOCK_MS:-900000}
+      REGISTER_RATE_LIMIT_MAX: ${REGISTER_RATE_LIMIT_MAX:-5}
+      REGISTER_RATE_LIMIT_WINDOW_MS: ${REGISTER_RATE_LIMIT_WINDOW_MS:-1800000}
+      REGISTER_RATE_LIMIT_BLOCK_MS: ${REGISTER_RATE_LIMIT_BLOCK_MS:-1800000}
+      INVITE_RATE_LIMIT_MAX: ${INVITE_RATE_LIMIT_MAX:-10}
+      INVITE_RATE_LIMIT_WINDOW_MS: ${INVITE_RATE_LIMIT_WINDOW_MS:-3600000}
+      INVITE_RATE_LIMIT_BLOCK_MS: ${INVITE_RATE_LIMIT_BLOCK_MS:-3600000}
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
       PUBLIC_APP_URL: ${PUBLIC_APP_URL:-}
       MAX_UPLOAD_BYTES: ${MAX_UPLOAD_BYTES:-52428800}
@@ -132,7 +147,7 @@ services:
           "CMD",
           "node",
           "-e",
-          "fetch('http://localhost:3000').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
+          "fetch('http://localhost:3000/api/db/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))",
         ]
       interval: 10s
       timeout: 5s

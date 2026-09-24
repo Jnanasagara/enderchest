@@ -122,6 +122,7 @@ try {
       default { throw "Unknown public connection mode. No data was changed." }
     }
   }
+  New-Item -ItemType Directory -Path (Join-Path $root "backups") -Force | Out-Null
   & docker @compose up -d --build --wait
   if ($LASTEXITCODE -ne 0) { throw "Docker could not start EnderChest. Read the error above, check free disk space and port 3000, then rerun setup. Existing volumes and files were not removed." }
   Write-Host "EnderChest is ready at http://localhost:3000"

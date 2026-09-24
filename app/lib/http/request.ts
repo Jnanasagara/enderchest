@@ -12,20 +12,6 @@ export function getRequestId(req: Request): string {
   return headerId && headerId.trim().length > 0 ? headerId : crypto.randomUUID();
 }
 
-export function getClientIp(req: Request): string {
-  const forwardedFor = req.headers.get("x-forwarded-for");
-  if (forwardedFor) {
-    return forwardedFor.split(",")[0]?.trim() || "unknown";
-  }
-
-  const realIp = req.headers.get("x-real-ip");
-  if (realIp && realIp.trim().length > 0) {
-    return realIp.trim();
-  }
-
-  return "unknown";
-}
-
 export function getCookieValue(req: Request, name: string): string | null {
   const cookieHeader = req.headers.get("cookie");
   if (!cookieHeader) return null;
@@ -58,10 +44,21 @@ export async function readJsonBody<T>(
   }
 
   try {
-    const text = await req.text();
-    if (text.length > maxBytes) {
-      return { error: "Request body too large" };
+    if (!req.body) return { error: "Empty request body" };
+    const reader = req.body.getReader();
+    const chunks: Uint8Array[] = [];
+    let bytes = 0;
+    for (;;) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      bytes += value.byteLength;
+      if (bytes > maxBytes) {
+        await reader.cancel();
+        return { error: "Request body too large" };
+      }
+      chunks.push(value);
     }
+    const text = new TextDecoder().decode(Buffer.concat(chunks));
 
     if (!text) {
       return { error: "Empty request body" };

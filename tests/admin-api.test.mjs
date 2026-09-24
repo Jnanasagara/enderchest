@@ -85,6 +85,14 @@ test("admin endpoints", async () => {
   assert.ok(cookieJar.get("session"), "session cookie is set");
   assert.ok(cookieJar.get("csrf"), "csrf cookie is set");
 
+  const host = await request("/api/admin/host", { authenticated: true });
+  assert.equal(host.response.status, 200, "admin can read host status");
+  assert.equal(host.data?.services?.app, "healthy");
+  assert.equal(host.data?.services?.database, "healthy");
+  assert.equal(host.data?.services?.garage, "healthy");
+  assert.ok(["ok", "unavailable"].includes(host.data?.disk?.status));
+  assert.ok(["found", "none", "unavailable"].includes(host.data?.backup?.status));
+
   const inviteCreate = await request("/api/admin/invite", {
     method: "POST",
     authenticated: true,
